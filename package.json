@@ -1,11 +1,13 @@
 {
   "name": "discord-jewel",
-  "version": "3.0.2-beta",
-  "template-version": 5,
+  "version": "3.0.2-beta3",
   "description": "An easy to use discord.js template!",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
+  },
+  "bin": {
+    "discord-jewel": "auto-cli.js"
   },
   "repository": {
     "type": "git",
