@@ -1,0 +1,7 @@
+.idea
+events
+commands
+languages
+.npmignore
+.gitignore
+package-lock.json
