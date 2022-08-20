@@ -8,7 +8,7 @@ const ___________ = (str, __________variables) => eval(str);
 (() => {
     async function fileEval(code, vars = {}, uuid = getUniqueId()) {
         await mkTmp();
-        const filePath = path.join(process.cwd(), config.tmp, uuid + "_eval.js");
+        const filePath = path.join(path.dirname(__dirname), config.tmp, uuid + "_eval.js");
         fs.writeFileSync(filePath, `module["exports"]=async(${Object.keys(vars).join()})=>{${code}}`);
         const func = require(filePath);
         if (config.experimental["file-eval-remove"]) fs.rmSync(filePath);
@@ -72,7 +72,7 @@ const ___________ = (str, __________variables) => eval(str);
             return await new Promise(res => {
                 let tmp = null;
                 const r = j => {
-                    j.tmp = path.join(process.cwd(), config.tmp, tmp + "_eval.js");
+                    j.tmp = path.join(path.dirname(__dirname), config.tmp, tmp + "_eval.js");
                     return res(j);
                 };
                 r._ended = false;
@@ -260,8 +260,20 @@ const ___________ = (str, __________variables) => eval(str);
                 subCommandGroup = interaction.options.getSubcommandGroup(false);
                 for (let i = 0; i < optionData.length; i++) {
                     const opt = optionData[i];
-                    args[opt.name] = opt.value;
+                    if (opt.type === 1) {
+                        args[opt.name] = {};
+                        for (let j = 0; j < opt.options.length; j++) args[opt.name] = opt.value;
+                    } else if (opt.type === 2) {
+                        args[opt.name] = {};
+                        for (let j = 0; j < opt.options.length; j++) {
+                            const opt2 = opt.options[j];
+                            args[opt.name][opt2.name] = {};
+                            for (let k = 0; k < opt2.options.length; k++) args[opt.name][opt2.name][opt2.options[k].name] = opt2.options[k].value;
+                        }
+                    } else args[opt.name] = opt.value;
                 }
+                if (subCommandGroup) args = args[subCommandGroup];
+                if (subCommand) args = args[subCommand];
             }
             return await super.run({
                 interaction, channel, guild, language, structure,
@@ -295,7 +307,7 @@ const ___________ = (str, __________variables) => eval(str);
             const structFile = file.split("").reverse().join("").replace("sj.", "sj.tcurts.").split("").reverse().join("");
             const {err: errStruct, data: dataStruct} = await readFileAsync(structFile, "utf8");
             if (errStruct) {
-                alertCache[file] || printer.error("Couldn't load the structure file of slash command " + file + " which is " + structFile + ". Please create a file called " + structFile + " and add slash command structure. Detailed information about how to add slash command structure: https://github.com/JewelDiscord/JewelNPM");
+                alertCache[file] || printer.error("Couldn't load the structure file of slash command " + file + " which is " + structFile + ". Please create a file called " + structFile + " and add slash command structure. Detailed information about how to add slash command structure: https://github.com/OguzhanUmutlu/DJSTemplate");
                 alertCache[file] = true;
                 return;
             }
@@ -368,7 +380,7 @@ const ___________ = (str, __________variables) => eval(str);
                             .replaceAll("{error.message}", result.error.message);
                         const file = format(config.errors["save-details"]["file-format"]);
                         const save = format(config.errors["save-details"]["save-format"]);
-                        fs.writeFileSync(path.join(process.cwd(), config.errors["save-details"].directory, file), save);
+                        fs.writeFileSync(path.join(__dirname, config.errors["save-details"].directory, file), save);
                     }
                 }
             }];
